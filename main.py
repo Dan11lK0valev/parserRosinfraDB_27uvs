@@ -12,24 +12,26 @@ import time
 
 # драйвер для открытия браузера
 path_edge_driver = 'edgedriver_win64/msedgedriver.exe'
-# ссылке к первой странице базы проектов
+# ссылка к первой странице базы проектов (сортировка по актуальности)
 project_base_link = 'https://dpo.rosinfra.ru/base-projects?filters=%7B"order"%3A"desc,created_at"%7D&page=1'
 # project_base_link = 'https://dpo.rosinfra.ru/base-projects?page=1'
 
-# файл глобальных настроек
+# файл персональных настроек
 settings_file = 'settings.txt'
+logging = 'log_file.txt'
 
 # Коды для стилизации
 RESET = "\033[0m"  # Сброс всех стилей
 BOLD = "\033[1m"  # Жирный шрифт
 RED = "\033[31m"  # Красный цвет текста
-GREEN = "\033[32m"   # Зелёный
+GREEN = "\033[32m"  # Зелёный
+YELLOW = "\033[33m"  # Жёлтый
 
 # глобальные переменные
 old_mode_file = ""
+## настраиваемые переменные
 project_link_standard1 = 'https://dpo.rosinfra.ru/projects-office/4679/form/questionnaire'
 project_link_standard2 = 'https://dpo.rosinfra.ru/projects-office/13642/form/Passport'
-## настраиваемые переменные
 name_file_standard1 = "passport_standard_first.xlsx"
 name_file_standard2 = "passport_standard_second.xlsx"
 name_file_standard_oth = "passport_standard_oth.xlsx"
@@ -68,6 +70,7 @@ def convert_value(value):
 
 
 def load_settings(file_path):
+    global project_base_link, project_link_standard1, project_link_standard2
     global name_file_standard1, name_file_standard2, name_file_standard_oth, name_file_data1, name_file_data2
     global name_file_data_oth, skip_status, timeout_open_page1, timeout_perform_login1, timeout_perform_login2
     global timesleep_parse_tooltips1, timesleep_parse_tooltips2, timeout_parse_pagination1
@@ -83,7 +86,13 @@ def load_settings(file_path):
                     key, value = map(str.strip, line.split(":", 1))
 
                     # Присваиваем значение глобальным переменным по названию ключа
-                    if key == "name_file_standard1":
+                    if key == "project_base_link":
+                        project_base_link = value
+                    elif key == "project_link_standard1":
+                        project_link_standard1 = value
+                    elif key == "project_link_standard2":
+                        project_link_standard2 = value
+                    elif key == "name_file_standard1":
                         name_file_standard1 = value
                     elif key == "name_file_standard2":
                         name_file_standard2 = value
@@ -123,11 +132,12 @@ def load_settings(file_path):
                         timesleep_parse_project1 = convert_value(value)
                     elif key == "timesleep_parse1":
                         timesleep_parse1 = convert_value(value)
+        print(f"{GREEN}Персональные настройки успешно загружены!{RESET}\n")
 
     except FileNotFoundError:
-        print(f"Файл {file_path} не найден.")
+        print(f"{YELLOW}Файл {RESET}{file_path}{YELLOW} не найден.{RESET}")
     except Exception as e:
-        print(f"Ошибка при чтении файла: {e}")
+        print(f"{RED}Ошибка при чтении файла: {e}{RESET}")
 
 
 class WebParser:
@@ -418,7 +428,7 @@ class WebParser:
                 if key in column_names:  # Проверяем, что ключ существует в заголовках таблицы
                     new_row[key] = value  # Вставляем значение в соответствующий столбец таблицы
                 else:
-                    print(f"Пропущен заголовок: {key}. Нет среди заголовков таблицы.")
+                    print(f"{YELLOW}Пропущен заголовок: {RESET}{key}{YELLOW}. Нет среди заголовков таблицы.{RESET}")
                     # Отображаем, если заголовок не найден
 
             # print(new_row)  # Проверяем, что данные корректно вставлены
@@ -452,8 +462,10 @@ def create_data_copy():
     df.to_excel(name_file_data2, index=False)
     df = pd.read_excel(name_file_standard_oth)
     df.to_excel(name_file_data_oth, index=False)
-    print(f"Копии таблиц {name_file_standard1}, {name_file_standard2} и {name_file_standard_oth} "
-          f"успешно созданы, как {name_file_data1}, {name_file_data2} и {name_file_data_oth}")
+    print(
+        f"{GREEN}Копии таблиц {RESET}{name_file_standard1}{GREEN}, {RESET}{name_file_standard2}{GREEN} и {RESET}{name_file_standard_oth}"
+        f"{GREEN} успешно созданы, как {RESET}{name_file_data1}{GREEN}, {RESET}{name_file_data2}{GREEN} и {RESET}{name_file_data_oth}"
+    )
 
 
 # Функция для чтения логина и пароля с проверкой корректности ввода
@@ -469,7 +481,7 @@ def get_login_and_password():
             # print(f"Пароль: {password}")
             return login, password
         else:
-            print("Ошибка: необходимо ввести ровно два значения — логин и пароль через пробел.")
+            print(f"{YELLOW}Ошибка: необходимо ввести ровно два значения — логин и пароль через пробел.{RESET}")
 
 
 def standard1():
@@ -530,7 +542,7 @@ def parse():
                  "новая запись данных): ")
 
     if not (mode == "old" or mode == "new"):
-        print("Введен неверный мод! Выберете new или old!")
+        print(f"{YELLOW}Введен неверный мод! Выберете new или old!{RESET}")
         return
 
     # Создаем экземпляр WebParser с выбранным браузером
@@ -615,7 +627,8 @@ def main():
     if action in actions:
         actions[action]()  # Запуск соответствующей функции
     else:
-        print("Неверное действие. Пожалуйста, введите sus1, sus2, suso или parse.")
+        print(f"{YELLOW}Неверное действие. Пожалуйста, введите{RESET} "
+              f"sus1{YELLOW}, {RESET}sus2{YELLOW}, {RESET}suso{YELLOW} или {RESET}parse.")
 
 
 if __name__ == "__main__":

@@ -1,20 +1,36 @@
+project_base_link: https://dpo.rosinfra.ru/base-projects?filters=%7B"order"%3A"desc,created_at"%7D&page=1
+
+project_link_standard1: https://dpo.rosinfra.ru/projects-office/4679/form/questionnaire
+project_link_standard2: https://dpo.rosinfra.ru/projects-office/13642/form/Passport
+
 name_file_standard1: passport_standard_first.xlsx
 name_file_standard2: passport_standard_second.xlsx
 name_file_standard_oth: passport_standard_oth.xlsx
+
 name_file_data1: data_type1.xlsx
 name_file_data2: data_type2.xlsx
 name_file_data_oth: data_type_oth.xlsx
+
 skip_status: True
+
 timeout_open_page1: 5
+
 timeout_perform_login1: 5
 timeout_perform_login2: 10
+
 timesleep_parse_tooltips1: 0.5
 timesleep_parse_tooltips2: 0.5
+
 timeout_parse_pagination1: 15
+
 timeout_parse_projects_page1: 15
+
 timesleep_parse_projects_page1: 1
+
 timeout_parse_project1: 10
 timeout_parse_project2: 15
 timeout_parse_project3: 10
+
 timesleep_parse_project1: 2
+
 timesleep_parse1: 1
